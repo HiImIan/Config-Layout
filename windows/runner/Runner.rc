@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "app_cadastro" "\0"
+            VALUE "FileDescription", "config_layout" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "app_cadastro" "\0"
+            VALUE "InternalName", "config_layout" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2024 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "app_cadastro.exe" "\0"
-            VALUE "ProductName", "app_cadastro" "\0"
+            VALUE "OriginalFilename", "config_layout.exe" "\0"
+            VALUE "ProductName", "config_layout" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

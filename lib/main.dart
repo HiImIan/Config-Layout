@@ -1,4 +1,4 @@
-import 'package:app_cadastro/utility_functions.dart';
+import 'package:config_layout/utility_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
