@@ -1,73 +1,24 @@
-import 'package:config_layout/utility_functions.dart';
+import 'package:config_layout/home/config_page.dart';
+import 'package:config_layout/periods/db/period_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Directory dir = await getApplicationDocumentsDirectory();
+  await Hive.initFlutter(dir.path);
+  Hive.registerAdapter(PeriodModelAdapter());
+  await Hive.openBox<PeriodModel>('periods');
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-final TextEditingController nickName = TextEditingController();
-
-class _MyAppState extends State<MyApp> {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
+  runApp(MaterialApp(
+      localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
+      supportedLocales: const [Locale('pt')],
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: Scaffold(
-        body: SingleChildScrollView(
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width * 0.05,
-                  vertical: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Row(
-                    children: [
-                      IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.arrow_back_ios_new)),
-                      Text(
-                        "Configurações",
-                        style: TextStyle(
-                            fontSize: titleText, fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Row(
-                      children: [
-                        textFormField(
-                          maxWidth: 200,
-                          controller: nickName,
-                          label: "Apelido",
-                          validate: false,
-                        ),
-                        Row(
-                          children: [CircleAvatar()],
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.black, primary: Colors.black)),
+      home: const ConfigPage()));
 }

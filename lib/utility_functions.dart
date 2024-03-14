@@ -7,12 +7,58 @@ double titleText = 22;
 double subtitleText = 20;
 double errorText = 18;
 double simpleText = 16;
+double subSimpleText = 14;
 
-Color yellow = const Color.fromARGB(255, 255, 254, 3);
-Color red = const Color.fromARGB(255, 236, 1, 17);
-Color blue = const Color.fromARGB(255, 0, 91, 161);
-Color darkBlue = const Color.fromARGB(255, 2, 69, 121);
-Color? backgroundColor = Colors.grey[350];
+Color backGroundColorToField = const Color.fromARGB(255, 245, 246, 250);
+Color lightGrey = const Color.fromARGB(255, 217, 217, 217);
+Color subGrey = const Color.fromARGB(255, 211, 211, 211);
+Color grey = const Color.fromARGB(255, 240, 240, 240);
+
+Color red = const Color.fromARGB(255, 255, 0, 0);
+Color blue = const Color.fromARGB(255, 15, 39, 139);
+
+String convertMonth(int month) {
+  late String convertMonth;
+  switch (month) {
+    case 1:
+      convertMonth = "Jan";
+      break;
+    case 2:
+      convertMonth = "Fev";
+      break;
+    case 3:
+      convertMonth = "Mar";
+      break;
+    case 4:
+      convertMonth = "Abr";
+      break;
+    case 5:
+      convertMonth = "Mai";
+      break;
+    case 6:
+      convertMonth = "Jun";
+      break;
+    case 7:
+      convertMonth = "Jul";
+      break;
+    case 8:
+      convertMonth = "Ago";
+      break;
+    case 9:
+      convertMonth = "Set";
+      break;
+    case 10:
+      convertMonth = "Out";
+      break;
+    case 11:
+      convertMonth = "Nov";
+      break;
+    case 12:
+      convertMonth = "Dez";
+      break;
+  }
+  return convertMonth;
+}
 
 final validCharacters = RegExp(r'^[a-zA-Z0-9 ]');
 
@@ -104,62 +150,83 @@ Widget loginTextFormField(TextEditingController controller, bool isPassword) {
 }
 
 Widget textFormField(
-    {required double? maxWidth,
-    required TextEditingController controller,
-    required String? label,
+    {required TextEditingController controller,
+    required bool validate,
+    TextAlign? textAlign,
+    double? maxWidth,
+    double? maxHeight,
+    String? label,
+    Color? fillColor,
+    Color? borderColor,
+    Color? hintTextColor,
     int? maxLength,
     bool? havePadding,
     bool? readOnly,
+    bool? enabled,
     String? hintText,
     Function()? onTap,
-    required bool validate,
     List<TextInputFormatter>? inputFormatters}) {
   return Padding(
     padding: havePadding ?? true
-        ? const EdgeInsets.symmetric(vertical: 12, horizontal: 10)
+        ? const EdgeInsets.symmetric(vertical: 6, horizontal: 0)
         : EdgeInsets.zero,
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Visibility(
-          visible: ((label != "" && label != null) ? true : false),
+          visible: (label != null ? true : false),
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 5),
+            padding: const EdgeInsets.only(bottom: 2.5),
             child: Text(
-              label!,
+              label ?? "",
               style: TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.w600,
-                  fontSize: simpleText),
+                  fontSize: subSimpleText - 1),
             ),
           ),
         ),
         TextFormField(
           controller: controller,
-          style: const TextStyle(color: Colors.black),
+          style: const TextStyle(
+            color: Colors.black,
+          ),
           cursorColor: Colors.black,
           maxLength: maxLength,
           readOnly: readOnly ?? false,
-          keyboardType: TextInputType.number,
+          textAlign: textAlign ?? TextAlign.start,
+          keyboardType: TextInputType.name,
           inputFormatters: inputFormatters,
           decoration: InputDecoration(
+            fillColor: fillColor ?? Colors.white,
+            filled: true,
+            enabled: enabled ?? true,
             hintText: hintText,
-            isDense: true,
-            contentPadding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-            constraints: BoxConstraints(maxWidth: maxWidth ?? double.infinity),
+            hintStyle: TextStyle(fontSize: simpleText, color: lightGrey),
+            contentPadding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+            constraints: BoxConstraints(
+                maxWidth: maxWidth ?? double.infinity,
+                maxHeight: maxHeight ?? 30),
             errorStyle:
                 TextStyle(fontWeight: FontWeight.bold, color: Colors.red[400]),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(5.0),
-              borderSide: const BorderSide(
-                color: Color.fromARGB(255, 173, 173, 173),
-                width: 1.5,
+              borderSide: BorderSide(
+                color: borderColor ?? subGrey,
+                width: 2,
+              ),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(5.0),
+              borderSide: BorderSide(
+                color: Colors.transparent,
+                width: 2,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(7.0),
-              borderSide: const BorderSide(
-                color: Color.fromARGB(255, 0, 91, 161),
+              borderSide: BorderSide(
+                color: blue,
               ),
             ),
             errorBorder: OutlineInputBorder(
@@ -190,58 +257,6 @@ Widget textFormField(
   );
 }
 
-InputDecoration textFormDecoration(
-    String label, Widget? suffix, bool enable, bool limit) {
-  return InputDecoration(
-    isDense: true,
-    suffix: suffix,
-    errorStyle: const TextStyle(fontSize: 16),
-    labelText: label,
-    contentPadding: EdgeInsets.symmetric(vertical: 10),
-    floatingLabelAlignment: FloatingLabelAlignment.center,
-    labelStyle: TextStyle(
-      color: Colors.grey[700],
-      fontSize: subtitleText,
-    ),
-    enabled: enable,
-    enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(
-          color: limit
-              ? Colors.transparent
-              : const Color.fromARGB(150, 0, 92, 161),
-          width: 2),
-    ),
-    disabledBorder: OutlineInputBorder(
-      borderSide:
-          BorderSide(color: limit ? Colors.transparent : Colors.grey, width: 2),
-    ),
-    focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(
-          color: limit
-              ? Colors.transparent
-              : const Color.fromARGB(255, 0, 92, 161),
-          width: 2),
-    ),
-    border: OutlineInputBorder(
-      gapPadding: 3.3,
-      borderSide: BorderSide(
-          color: limit
-              ? Colors.transparent
-              : const Color.fromARGB(255, 0, 92, 161),
-          width: 2),
-      borderRadius: BorderRadius.circular(5),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderSide:
-          BorderSide(color: limit ? Colors.transparent : Colors.red, width: 2),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderSide:
-          BorderSide(color: limit ? Colors.transparent : Colors.red, width: 2),
-    ),
-  );
-}
-
 final MaterialStateProperty<Icon?> thumbIcon =
     MaterialStateProperty.resolveWith<Icon?>(
   (Set<MaterialState> states) {
@@ -255,19 +270,14 @@ final MaterialStateProperty<Icon?> thumbIcon =
 //as variáveis em ordem são: hora, minuto, mostrar quando a hora for zero, escrever hora e minuto entre os numeros
 String formatTime(int hour, int minute, bool showHourZero, bool onlyNumbers) {
   return showHourZero
-      ? "${(hour < 10) ? '0' + hour.toString() : hour}${onlyNumbers ? ':' : 'h'}${(minute < 10) ? '0' + minute.toString() : minute}${onlyNumbers ? '' : 'min'}"
+      ? "${(hour < 10) ? '0$hour' : hour}${onlyNumbers ? ':' : 'h'}${(minute < 10) ? '0$minute' : minute}${onlyNumbers ? '' : 'min'}"
       : "${hour == 0 ? '' : hour < 10 ? '0$hour${onlyNumbers ? ':' : 'h'}' : '$hour${onlyNumbers ? ':' : 'h'}'}${(minute < 10) ? '0' + minute.toString() : minute}${onlyNumbers ? '' : 'min'}";
 }
 
-String formatDateAndTime(String stringDate) {
-  DateTime date = DateTime(
-    int.parse(stringDate.substring(0, 4)),
-    int.parse(stringDate.substring(5, 7)),
-    int.parse(stringDate.substring(8, 10)),
-    //  int.parse(stringDate.substring(11, 13)),
-    //  int.parse(stringDate.substring(14, 16))
-  );
-  return "${date.day < 10 ? '0' + date.day.toString() : date.day}/${date.month < 10 ? '0' + date.month.toString() : date.month}/${date.year}"; /*  - ${formatTime(date.hour, date.minute, true, true)} */
+String formatDateAndTime(DateTime stringDate, bool monthInString) {
+  return "${stringDate.day < 10 ? '0${stringDate.day}' : stringDate.day}${monthInString ? ' de ' : '/'}${monthInString ? convertMonth(stringDate.month) : stringDate.month < 10 ? '0${stringDate.month}' : stringDate.month}${monthInString ? '. de ' : '/'}${stringDate.year.toString().substring(
+        monthInString ? 0 : 2,
+      )}"; /*  - ${formatTime(date.hour, date.minute, true, true)} */
 }
 
 Widget infoText(
