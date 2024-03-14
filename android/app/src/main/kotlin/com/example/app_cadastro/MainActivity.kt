@@ -1,4 +1,4 @@
-package com.example.config_layout
+package com.example.tarefa_periodo
 
 import io.flutter.embedding.android.FlutterActivity
 

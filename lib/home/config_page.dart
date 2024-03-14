@@ -1,8 +1,10 @@
-import 'package:config_layout/periods/db/period_model.dart';
-import 'package:config_layout/periods/widget.dart';
-import 'package:config_layout/utility_functions.dart';
+import 'package:tarefa_periodo/periods/db/period_model.dart';
+import 'package:tarefa_periodo/periods/modal.dart';
+import 'package:tarefa_periodo/utility_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+
+//classe responsável pela tela inicial do aplicativo
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -12,15 +14,13 @@ class ConfigPage extends StatefulWidget {
 }
 
 final TextEditingController nickName = TextEditingController();
-
+String nick = "João";
 late Box<PeriodModel> periodsBox;
 
 class _ConfigPageState extends State<ConfigPage> {
   @override
   initState() {
     periodsBox = getPeriods();
-    print("iniciou o init");
-
     super.initState();
   }
 
@@ -32,7 +32,7 @@ class _ConfigPageState extends State<ConfigPage> {
           child: Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * 0.05,
-                vertical: 20),
+                vertical: 40),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -54,10 +54,17 @@ class _ConfigPageState extends State<ConfigPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       textFormField(
-                        maxWidth: 200,
+                        maxWidth: MediaQuery.of(context).size.width * 0.4,
                         controller: nickName,
                         label: "Apelido",
-                        validate: false,
+                        onSubmit: (newNickName) {
+                          setState(() {
+                            if (newNickName != "") {
+                              nick = newNickName;
+                            }
+                          });
+                          nickName.clear();
+                        },
                       ),
                       ElevatedButton.icon(
                         onPressed: () {},
@@ -70,7 +77,7 @@ class _ConfigPageState extends State<ConfigPage> {
                             backgroundColor: MaterialStatePropertyAll(grey),
                             elevation: const MaterialStatePropertyAll(0),
                             fixedSize:
-                                const MaterialStatePropertyAll(Size(165, 60)),
+                                const MaterialStatePropertyAll(Size(165, 55)),
                             padding: const MaterialStatePropertyAll(
                                 EdgeInsets.zero)),
                         icon: const Image(
@@ -106,9 +113,9 @@ class _ConfigPageState extends State<ConfigPage> {
                   decoration: BoxDecoration(
                       color: backGroundColorToField,
                       borderRadius: BorderRadius.circular(10)),
-                  height: MediaQuery.of(context).size.height * 0.3,
+                  height: MediaQuery.of(context).size.height * 0.4,
                   width: MediaQuery.of(context).size.width,
-                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 5),
                   child: ListView.builder(
                     itemCount: periodsBox.length,
                     itemBuilder: (BuildContext context, int index) {
@@ -170,29 +177,27 @@ class _ConfigPageState extends State<ConfigPage> {
                         Padding(
                           padding: const EdgeInsets.only(left: 10),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "João",
+                                nick,
                                 style: TextStyle(
                                     color: blue,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: simpleText),
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: simpleText + 1),
                               ),
-                              TextButton(
-                                onPressed: () {},
-                                child: Text(
-                                  "Sair",
-                                  style: TextStyle(
-                                      shadows: [
-                                        Shadow(
-                                            color: blue,
-                                            offset: const Offset(0, -2))
-                                      ],
-                                      color: Colors.transparent,
-                                      fontSize: simpleText,
-                                      decoration: TextDecoration.underline),
-                                ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 5),
+                                child: Text("Sair",
+                                    style: TextStyle(
+                                        shadows: [
+                                          Shadow(
+                                              color: blue,
+                                              offset: const Offset(0, -2))
+                                        ],
+                                        color: Colors.transparent,
+                                        fontSize: simpleText - 1,
+                                        decoration: TextDecoration.underline)),
                               )
                             ],
                           ),

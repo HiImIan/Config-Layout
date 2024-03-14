@@ -1,6 +1,6 @@
 {
-    "name": "config_layout",
-    "short_name": "config_layout",
+    "name": "tarefa_periodo",
+    "short_name": "tarefa_periodo",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

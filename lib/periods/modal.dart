@@ -1,24 +1,25 @@
-import 'package:config_layout/home/config_page.dart';
-import 'package:config_layout/periods/db/period_model.dart';
-import 'package:config_layout/utility_functions.dart';
+import 'package:tarefa_periodo/periods/db/period_model.dart';
+
+import 'package:tarefa_periodo/utility_functions.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 
-final TextEditingController periodName = TextEditingController();
-final TextEditingController periodStart = TextEditingController();
-
-final TextEditingController periodEnd = TextEditingController();
-int periodTypeSelected = 0;
-final TextEditingController periodgoal1 = TextEditingController();
-final TextEditingController periodgoal2 = TextEditingController();
-final ValueNotifier<bool> edit = ValueNotifier<bool>(false);
-
+// função que retorna um Modal Button com as informações para serem preenchidas
 Future<dynamic> period(BuildContext context, int? index, bool canEdit,
     PeriodModel? period, Function update) {
+  final TextEditingController periodName = TextEditingController();
+  final TextEditingController periodStart = TextEditingController();
+
+  final TextEditingController periodEnd = TextEditingController();
+  int periodTypeSelected = 0;
+  final TextEditingController periodgoal1 = TextEditingController();
+  final TextEditingController periodgoal2 = TextEditingController();
+  final ValueNotifier<bool> edit = ValueNotifier<bool>(false);
+  GlobalKey<FormState> periodForm = GlobalKey();
   edit.value = canEdit;
-  late DateTime newPeriodStart;
-  late DateTime newPeriodEnd;
+  DateTime? newPeriodStart;
+  DateTime? newPeriodEnd;
   if (period != null) {
     periodName.text = period.name;
     periodStart.text = formatDateAndTime(period.start, true);
@@ -28,15 +29,6 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
     periodTypeSelected = period.type;
     periodgoal1.text = period.goal1.toString();
     periodgoal2.text = period.goal2.toString();
-  } else {
-    periodName.clear();
-    periodStart.clear();
-    newPeriodStart = DateTime.now();
-    periodEnd.clear();
-    newPeriodEnd = DateTime.now();
-    periodTypeSelected = 0;
-    periodgoal1.clear();
-    periodgoal2.clear();
   }
   return showModalBottomSheet(
     shape: const RoundedRectangleBorder(
@@ -44,8 +36,10 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
         top: Radius.circular(20),
       ),
     ),
+    constraints: BoxConstraints.loose(Size(MediaQuery.of(context).size.width,
+        MediaQuery.of(context).size.height * 0.7)),
+    isScrollControlled: true,
     clipBehavior: Clip.antiAliasWithSaveLayer,
-    backgroundColor: Colors.white,
     context: context,
     isDismissible: false,
     enableDrag: false,
@@ -73,40 +67,50 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
           ),
           body: ValueListenableBuilder<bool>(
             valueListenable: edit,
-            builder: (BuildContext context, bool value, Widget? child) {
-              // This builder will only get called when the _counter
-              // is updated.
-              return Center(
-                child: Container(
-                  height: MediaQuery.of(context).size.height * 0.8,
-                  color: Colors.white,
-                  child: SingleChildScrollView(
+            builder: (BuildContext context, bool isEdit, Widget? child) {
+              return Form(
+                key: periodForm,
+                child: SingleChildScrollView(
+                  child: Align(
+                    alignment: Alignment.topCenter,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
+                        //
+                        //
+                        // Nome do periodo
+                        //
                         textFormField(
                             maxWidth: MediaQuery.of(context).size.width * 0.9,
-                            maxHeight: 40,
-                            readOnly: !edit.value,
+                            maxHeight: 60,
+                            readOnly: !isEdit,
                             controller: periodName,
                             hintText: "Nomeie seu periodo",
                             hintTextColor: lightGrey,
-                            validate: false,
                             fillColor: backGroundColorToField,
-                            borderColor: backGroundColorToField),
-                        Container(
-                          width: MediaQuery.of(context).size.width * 0.9,
-                          decoration: BoxDecoration(
-                              color: edit.value
-                                  ? backGroundColorToField
-                                  : Colors.white,
-                              borderRadius: BorderRadius.circular(5)),
-                          child: Padding(
+                            borderColor: backGroundColorToField,
+                            validate: (value) {
+                              if (value!.isEmpty) {
+                                return "preencha o campo";
+                              }
+                              return null;
+                            }),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width * 0.9,
+                            decoration: BoxDecoration(
+                                color: isEdit
+                                    ? backGroundColorToField
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(5)),
                             padding: const EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 20),
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+                                //
+                                //
+                                // Data inicial
+                                //
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -117,26 +121,30 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                           fontSize: simpleText,
                                           fontWeight: FontWeight.bold),
                                     ),
-                                    Visibility(
-                                      child: textFormField(
+                                    textFormField(
                                         maxWidth:
                                             MediaQuery.of(context).size.width *
-                                                0.45,
-                                        maxHeight: 35,
-                                        enabled: edit.value,
+                                                0.5,
+                                        maxHeight: 60,
+                                        enabled: isEdit,
                                         readOnly: true,
-                                        textAlign: edit.value
+                                        fillColor: isEdit
+                                            ? Colors.white
+                                            : Colors.transparent,
+                                        textAlign: isEdit
                                             ? TextAlign.center
                                             : TextAlign.end,
                                         borderColor: subGrey,
                                         controller: periodStart,
-                                        validate: false,
                                         onTap: () {
                                           showDatePicker(
                                             context: context,
-                                            initialDate: newPeriodStart,
+                                            initialDate: newPeriodStart ??
+                                                newPeriodEnd ??
+                                                DateTime.now(),
                                             firstDate: DateTime(2001, 04, 15),
-                                            lastDate: DateTime(2099, 1, 1),
+                                            lastDate: newPeriodEnd ??
+                                                DateTime(2099, 1, 1),
                                           ).then((value) {
                                             if (value != null) {
                                               newPeriodStart = value;
@@ -146,8 +154,12 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                             }
                                           });
                                         },
-                                      ),
-                                    ),
+                                        validate: (value) {
+                                          if (value!.isEmpty) {
+                                            return "escolha uma data";
+                                          }
+                                          return null;
+                                        }),
                                   ],
                                 ),
                                 Padding(
@@ -158,6 +170,10 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                     thickness: 2,
                                   ),
                                 ),
+                                //
+                                //
+                                // Data final
+                                //
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -169,33 +185,44 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     textFormField(
-                                      readOnly: true,
-                                      maxWidth:
-                                          MediaQuery.of(context).size.width *
-                                              0.45,
-                                      maxHeight: 35,
-                                      enabled: edit.value,
-                                      textAlign: edit.value
-                                          ? TextAlign.center
-                                          : TextAlign.end,
-                                      borderColor: subGrey,
-                                      controller: periodEnd,
-                                      validate: false,
-                                      onTap: () {
-                                        showDatePicker(
-                                          context: context,
-                                          initialDate: newPeriodEnd,
-                                          firstDate: DateTime(2001, 04, 15),
-                                          lastDate: DateTime(2099, 1, 1),
-                                        ).then((value) {
-                                          if (value != null) {
-                                            newPeriodEnd = value;
-                                            periodEnd.text =
-                                                formatDateAndTime(value, true);
+                                        readOnly: true,
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.5,
+                                        maxHeight: 60,
+                                        enabled: isEdit,
+                                        fillColor: isEdit
+                                            ? Colors.white
+                                            : Colors.transparent,
+                                        textAlign: isEdit
+                                            ? TextAlign.center
+                                            : TextAlign.end,
+                                        borderColor: subGrey,
+                                        controller: periodEnd,
+                                        onTap: () {
+                                          showDatePicker(
+                                            context: context,
+                                            initialDate: newPeriodEnd ??
+                                                newPeriodStart ??
+                                                DateTime.now(),
+                                            firstDate: newPeriodStart ??
+                                                DateTime(2001, 04, 15),
+                                            lastDate: DateTime(2099, 1, 1),
+                                          ).then((value) {
+                                            if (value != null) {
+                                              newPeriodEnd = value;
+                                              periodEnd.text =
+                                                  formatDateAndTime(
+                                                      value, true);
+                                            }
+                                          });
+                                        },
+                                        validate: (value) {
+                                          if (value!.isEmpty) {
+                                            return "escolha uma data";
                                           }
-                                        });
-                                      },
-                                    ),
+                                          return null;
+                                        }),
                                   ],
                                 ),
                                 Padding(
@@ -206,6 +233,10 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                     thickness: 2,
                                   ),
                                 ),
+                                //
+                                //
+                                // Drop Down Button
+                                //
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -226,29 +257,37 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                       items: List.generate(
                                         5,
                                         (index) => DropdownMenuItem(
-                                          alignment: edit.value
+                                          alignment: isEdit
                                               ? Alignment.center
                                               : Alignment.centerRight,
                                           value: index + 1,
                                           child: Text(
                                             "Categoria ${index + 1}",
                                             style: TextStyle(
-                                                fontSize: simpleText + 1,
+                                                fontSize: simpleText,
                                                 color: Colors.black),
                                           ),
                                         ),
                                       ),
-                                      icon: edit.value
+                                      icon: isEdit
                                           ? Icon(
                                               CupertinoIcons.chevron_down,
                                               color: subGrey,
                                             )
                                           : const SizedBox(
-                                              width: 12.7,
+                                              width: 10,
                                             ),
+                                      validator: (value) {
+                                        if (value == null) {
+                                          return "Escolha uma categoria";
+                                        }
+                                        return null;
+                                      },
                                       decoration: InputDecoration(
-                                        enabled: edit.value,
-                                        fillColor: Colors.white,
+                                        enabled: isEdit,
+                                        fillColor: isEdit
+                                            ? Colors.white
+                                            : Colors.transparent,
                                         filled: true,
                                         contentPadding:
                                             const EdgeInsets.fromLTRB(
@@ -257,8 +296,8 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                             maxWidth: MediaQuery.of(context)
                                                     .size
                                                     .width *
-                                                0.45,
-                                            maxHeight: 35),
+                                                0.5,
+                                            maxHeight: 60),
                                         errorStyle: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             color: Colors.red[400]),
@@ -273,7 +312,7 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                         disabledBorder: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(5.0),
-                                          borderSide: BorderSide(
+                                          borderSide: const BorderSide(
                                             color: Colors.transparent,
                                             width: 2,
                                           ),
@@ -300,7 +339,7 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                           ),
                                         ),
                                       ),
-                                      onChanged: edit.value
+                                      onChanged: isEdit
                                           ? (value) {
                                               periodTypeSelected =
                                                   int.parse(value.toString());
@@ -320,6 +359,10 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                 vertical: 10, horizontal: 20),
                             child: Column(
                               children: [
+                                //
+                                //
+                                // meta 1
+                                //
                                 Padding(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 5),
@@ -334,22 +377,39 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                             fontWeight: FontWeight.bold),
                                       ),
                                       textFormField(
-                                        hintText: "Un",
-                                        maxWidth:
-                                            MediaQuery.of(context).size.width *
-                                                0.2,
-                                        maxHeight: 35,
-                                        enabled: edit.value,
-                                        textAlign: edit.value
-                                            ? TextAlign.center
-                                            : TextAlign.end,
-                                        borderColor: subGrey,
-                                        controller: periodgoal1,
-                                        validate: false,
-                                      ),
+                                          hintText: "Un",
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.25,
+                                          maxHeight: 60,
+                                          enabled: isEdit,
+                                          fillColor: isEdit
+                                              ? Colors.white
+                                              : Colors.transparent,
+                                          textAlign: isEdit
+                                              ? TextAlign.center
+                                              : TextAlign.end,
+                                          borderColor: subGrey,
+                                          controller: periodgoal1,
+                                          textInputType: TextInputType.number,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter
+                                                .digitsOnly
+                                          ],
+                                          validate: (value) {
+                                            if (value!.isEmpty) {
+                                              return "Preencha";
+                                            }
+                                            return null;
+                                          }),
                                     ],
                                   ),
                                 ),
+                                //
+                                //
+                                // Meta 2
+                                //
                                 Padding(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 5),
@@ -364,19 +424,32 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                             fontWeight: FontWeight.bold),
                                       ),
                                       textFormField(
-                                        hintText: "Un",
-                                        maxWidth:
-                                            MediaQuery.of(context).size.width *
-                                                0.2,
-                                        maxHeight: 35,
-                                        enabled: edit.value,
-                                        textAlign: edit.value
-                                            ? TextAlign.center
-                                            : TextAlign.end,
-                                        borderColor: subGrey,
-                                        controller: periodgoal2,
-                                        validate: false,
-                                      ),
+                                          hintText: "Un",
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.25,
+                                          maxHeight: 60,
+                                          enabled: isEdit,
+                                          fillColor: isEdit
+                                              ? Colors.white
+                                              : Colors.transparent,
+                                          textAlign: isEdit
+                                              ? TextAlign.center
+                                              : TextAlign.end,
+                                          borderColor: subGrey,
+                                          controller: periodgoal2,
+                                          textInputType: TextInputType.number,
+                                          inputFormatters: [
+                                            FilteringTextInputFormatter
+                                                .digitsOnly
+                                          ],
+                                          validate: (value) {
+                                            if (value!.isEmpty) {
+                                              return "Preencha";
+                                            }
+                                            return null;
+                                          }),
                                     ],
                                   ),
                                 ),
@@ -384,15 +457,27 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                             ),
                           ),
                         ),
+
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20),
+                          // os botões alternam a visibilidade conforme a possibilidade de alterar esta ativa
+                          // novos periodos vem com a variável isEdit = true
+                          // botões já existentem precisam acionar o botão Editar para que seja possível
+                          // alterar os campos do periodo.
                           child: Visibility(
-                            visible: edit.value,
+                            visible: isEdit,
                             replacement: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
+                                //
+                                //
+                                // Botão excluir
+                                //
                                 ElevatedButton(
                                   style: ButtonStyle(
+                                      fixedSize: const MaterialStatePropertyAll(
+                                        Size(120, 40),
+                                      ),
                                       backgroundColor:
                                           MaterialStatePropertyAll(red)),
                                   child: const Text(
@@ -405,8 +490,15 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                     update();
                                   },
                                 ),
+                                //
+                                //
+                                // Botão editar
+                                //
                                 ElevatedButton(
                                   style: ButtonStyle(
+                                      fixedSize: const MaterialStatePropertyAll(
+                                        Size(120, 40),
+                                      ),
                                       backgroundColor:
                                           MaterialStatePropertyAll(blue)),
                                   child: const Text(
@@ -420,8 +512,15 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                 ),
                               ],
                             ),
+                            //
+                            //
+                            // Botão de concluir
+                            //
                             child: ElevatedButton(
                               style: ButtonStyle(
+                                  fixedSize: const MaterialStatePropertyAll(
+                                    Size(150, 40),
+                                  ),
                                   backgroundColor:
                                       MaterialStatePropertyAll(blue)),
                               child: const Text(
@@ -429,28 +528,31 @@ Future<dynamic> period(BuildContext context, int? index, bool canEdit,
                                 style: TextStyle(color: Colors.white),
                               ),
                               onPressed: () {
-                                if (period == null) {
-                                  getPeriods().add(PeriodModel(
-                                      name: periodName.text,
-                                      start: newPeriodStart,
-                                      end: newPeriodEnd,
-                                      type: periodTypeSelected,
-                                      goal1: int.parse(periodgoal1.text),
-                                      goal2: int.parse(periodgoal2.text)));
-                                  Navigator.pop(context);
-                                  update();
-                                } else {
-                                  getPeriods().putAt(
-                                      index!,
-                                      PeriodModel(
-                                          name: periodName.text,
-                                          start: newPeriodStart,
-                                          end: newPeriodEnd,
-                                          type: periodTypeSelected,
-                                          goal1: int.parse(periodgoal1.text),
-                                          goal2: int.parse(periodgoal2.text)));
-                                  Navigator.pop(context);
-                                  update();
+                                if (periodForm.currentState!.validate()) {
+                                  if (period == null) {
+                                    getPeriods().add(PeriodModel(
+                                        name: periodName.text,
+                                        start: newPeriodStart!,
+                                        end: newPeriodEnd!,
+                                        type: periodTypeSelected,
+                                        goal1: int.parse(periodgoal1.text),
+                                        goal2: int.parse(periodgoal2.text)));
+                                    Navigator.pop(context);
+                                    update();
+                                  } else {
+                                    getPeriods().putAt(
+                                        index!,
+                                        PeriodModel(
+                                            name: periodName.text,
+                                            start: newPeriodStart!,
+                                            end: newPeriodEnd!,
+                                            type: periodTypeSelected,
+                                            goal1: int.parse(periodgoal1.text),
+                                            goal2:
+                                                int.parse(periodgoal2.text)));
+                                    Navigator.pop(context);
+                                    update();
+                                  }
                                 }
                               },
                             ),

@@ -1,6 +1,9 @@
 import 'package:hive/hive.dart';
 part 'period_model.g.dart';
 
+// modelo que será salvo internamente para manter os periodos
+// ATENÇÃO APÓS ALTERAÇÕES nas variáveis, executar o comando
+// dart run build_runner build
 @HiveType(typeId: 0)
 class PeriodModel extends HiveObject {
   @HiveField(0)
@@ -26,4 +29,5 @@ class PeriodModel extends HiveObject {
   });
 }
 
+// função para usar os valores armazenados no dispositivo
 Box<PeriodModel> getPeriods() => Hive.box('periods');
