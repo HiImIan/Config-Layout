@@ -1,6 +1,6 @@
 # tarefa_periodo
 
-A new Flutter project.
+Um teste fornecido para testas minhas capacidades como desenvolvedor.
 
 ## Getting Started
 
